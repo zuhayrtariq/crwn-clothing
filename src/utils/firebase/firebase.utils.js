@@ -5,6 +5,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signInWithRedirect,
+  signInWithEmailAndPassword,
+  signOut,
 } from 'firebase/auth';
 
 import { getDoc, setDoc, doc, getFirestore } from 'firebase/firestore';
@@ -25,7 +27,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 const provider = new GoogleAuthProvider();
 
 provider.setCustomParameters({
-  promt: 'select_account',
+  prompt: 'select_account',
 });
 export const auth = getAuth();
 export const signInWithGooglePopup = () => {
@@ -34,6 +36,7 @@ export const signInWithGooglePopup = () => {
 
 export const db = getFirestore();
 
+//Function to add user in to our own database
 export const createUserDocumentFromAuth = async (userAuth, additionalInfo) => {
   const userDocRef = doc(db, 'users', userAuth.uid);
   const userSnapshot = await getDoc(userDocRef);
@@ -57,3 +60,9 @@ export const createAuthUserWithEmailAndPassword = async (email, password) => {
   if (!email || !password) return;
   return await createUserWithEmailAndPassword(auth, email, password);
 };
+export const signInAuthUserWithEmailAndPassword = async (email, password) => {
+  if (!email || !password) return;
+  return await signInWithEmailAndPassword(auth, email, password);
+};
+
+export const signOutUser = async () => await signOut(auth);
