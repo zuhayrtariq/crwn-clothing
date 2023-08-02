@@ -6,7 +6,7 @@ import { DropDownContext } from '../../contexts/dropdown.context'
 
 const CartIcon = () =>
 { 
-    const {activeDropDown, setActiveDropDown} = useContext(DropDownContext);
+    const {activeDropDown, setActiveDropDown,cartCount} = useContext(DropDownContext);
     const toggleDropDown = () =>
     {
         
@@ -16,7 +16,7 @@ const CartIcon = () =>
     return(
 <div className="cart-icon-container" onClick={toggleDropDown}>
     <ShoppingIcon className='shopping-icon' />
-    <span className='item-count'>0</span>
+    <span className='item-count'>{cartCount}</span>
 </div>)
 }
 export default CartIcon
