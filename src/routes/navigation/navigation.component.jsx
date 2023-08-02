@@ -10,7 +10,7 @@ import { DropDownContext } from '../../contexts/dropdown.context';
 
 const Navigation = () => {
   const { currentUser } = useContext(UserContext);
-  const {activeDropDown} = useContext(DropDownContext)
+  const { activeDropDown } = useContext(DropDownContext);
 
   return (
     <Fragment>
@@ -32,13 +32,10 @@ const Navigation = () => {
               SIGN IN
             </Link>
           )}
-          
-    <CartIcon  />
+
+          <CartIcon />
         </div>
-        {
-          activeDropDown &&    <CartDropdown/>
-        }
- 
+        {activeDropDown && <CartDropdown />}
       </div>
       <Outlet />
     </Fragment>
