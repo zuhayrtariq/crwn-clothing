@@ -66,6 +66,15 @@ export const DropDownProvider = ({ children }) => {
 
     setCartCount(newCartCount);
   }, [cartItems]);
+  const [cartTotal, setCartTotal] = useState(0);
+  useEffect(() => {
+    const newCartTotal = cartItems.reduce(
+      (total, cartItem) => total + cartItem.quantity * cartItem.price,
+      0
+    );
+
+    setCartTotal(newCartTotal);
+  }, [cartItems]);
 
   const valueToShare = {
     activeDropDown,
@@ -76,6 +85,7 @@ export const DropDownProvider = ({ children }) => {
     removeFromCart,
     addItemQuantity,
     minItemQuantity,
+    cartTotal,
   };
   return (
     <DropDownContext.Provider value={valueToShare}>
