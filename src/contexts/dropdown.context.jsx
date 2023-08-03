@@ -1,11 +1,38 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useReducer } from 'react';
+import { createAction } from '../utils/reducer/reducer.utils';
 
 export const DropDownContext = createContext();
-
+export const CartActionTypes = {
+  TOGGLE_CART_DROPDOWN: 'TOGGLE_CART_DROPDOWN',
+  SET_CART_ITEMS: 'SET_CART_ITEMS',
+};
+export const cartReducer = (state, action) => {
+  const { type, payload } = action;
+  switch (type) {
+    case CartActionTypes.TOGGLE_CART_DROPDOWN: {
+      return {
+        ...state,
+        activeDropDown: payload,
+      };
+    }
+    case CartActionTypes.SET_CART_ITEMS: {
+      return {
+        ...state,
+        ...payload,
+      };
+    }
+    default:
+      throw new Error(`Unhandled Type ${type} in the cartReducer`);
+  }
+};
+const INITITAL_STATE = {
+  activeDropDown: false,
+  cartItems: [],
+  cartCount: 0,
+  cartTotal: 0,
+};
 const removeItem = (cartItems, productToRemove) => {
   return cartItems.filter((cartItem) => {
-    console.log('This is Cart Item ID : ', cartItem.id);
-    console.log('This is Product To Delete ID : ', productToRemove.id);
     return cartItem.id !== productToRemove.id;
   });
 };
@@ -41,40 +68,47 @@ const decrementItem = (cartItems, productToRemove) => {
   });
 };
 export const DropDownProvider = ({ children }) => {
-  const [activeDropDown, setActiveDropDown] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
-  const [cartCount, setCartCount] = useState(0);
-  const addItemToCart = (productToAdd) => {
-    console.log('Add item to cartt');
-    setCartItems(addCartItems(cartItems, productToAdd));
+  const [{ activeDropDown, cartItems, cartCount, cartTotal }, dispatch] =
+    useReducer(cartReducer, INITITAL_STATE);
+  const setActiveDropDown = () => {
+    dispatch(
+      createAction(CartActionTypes.TOGGLE_CART_DROPDOWN, !activeDropDown)
+    );
   };
-  const removeFromCart = (productToRemove) => {
-    console.log('WORKEDDD');
-    setCartItems(removeItem(cartItems, productToRemove));
-  };
-  const addItemQuantity = (productToAdd) => {
-    setCartItems(incrementItem(cartItems, productToAdd));
-  };
-  const minItemQuantity = (productToRemove) => {
-    setCartItems(decrementItem(cartItems, productToRemove));
-  };
-  useEffect(() => {
-    const newCartCount = cartItems.reduce(
+
+  const updateCartItemsReducer = (newCartItems) => {
+    const newCartCount = newCartItems.reduce(
       (total, cartItem) => total + cartItem.quantity,
       0
     );
-
-    setCartCount(newCartCount);
-  }, [cartItems]);
-  const [cartTotal, setCartTotal] = useState(0);
-  useEffect(() => {
-    const newCartTotal = cartItems.reduce(
+    const newCartTotal = newCartItems.reduce(
       (total, cartItem) => total + cartItem.quantity * cartItem.price,
       0
     );
-
-    setCartTotal(newCartTotal);
-  }, [cartItems]);
+    dispatch(
+      createAction(CartActionTypes.SET_CART_ITEMS, {
+        cartItems: newCartItems,
+        cartTotal: newCartTotal,
+        cartCount: newCartCount,
+      })
+    );
+  };
+  const addItemToCart = (productToAdd) => {
+    const newCartItems = addCartItems(cartItems, productToAdd);
+    updateCartItemsReducer(newCartItems);
+  };
+  const removeFromCart = (productToRemove) => {
+    const newCartItems = removeItem(cartItems, productToRemove);
+    updateCartItemsReducer(newCartItems);
+  };
+  const addItemQuantity = (productToAdd) => {
+    const newCartItems = incrementItem(cartItems, productToAdd);
+    updateCartItemsReducer(newCartItems);
+  };
+  const minItemQuantity = (productToRemove) => {
+    const newCartItems = decrementItem(cartItems, productToRemove);
+    updateCartItemsReducer(newCartItems);
+  };
 
   const valueToShare = {
     activeDropDown,
